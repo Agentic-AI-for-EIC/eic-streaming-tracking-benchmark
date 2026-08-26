@@ -1,0 +1,10 @@
+# Environment for the EIC Streaming Tracking Benchmark's scoring code (metrics/score.py).
+#
+# This covers ONLY the benchmark's own scoring script, which has zero third-party
+# dependencies beyond numpy. It does NOT cover the reference solution's training/firmware
+# stack -- that is a separate, currently-undocumented environment (see
+# reference_solution/README.md "Requirements" and its [GAP] notes) that a submitter would
+# need to reconstruct from eic-shell 26.05 + eicrecon 26.07.1 + PyTorch + PQuant-ML + WANDA
+# + hls4ml + Vitis HLS, pending the project publishing a pinned environment file.
+
+numpy>=1.24

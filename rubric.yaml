@@ -1,0 +1,146 @@
+# MLCommons Science Benchmarks Ontology -- rating rubric checklist for the
+# EIC Streaming Tracking Benchmark.
+#
+# Scored from the material available on Indico as of 26 Aug 2026 (see README.md
+# "Sources"). This is a self-score of a WORKING DRAFT, not a finished benchmark -- several
+# items are marked false because the underlying artifact (published code, a frozen split,
+# an accessible dataset) genuinely does not exist yet, not because the idea behind it is
+# unsound. See each `evidence:` field for the specific gap.
+
+benchmark_name: "EIC Streaming Tracking Benchmark"
+scored_date: "2026-08-26"
+notes: >
+  Self-scored immediately after drafting the benchmark card from Indico materials
+  (Genesis Mission Phase I proposal + Aug 2026 project meetings). The reference solution
+  (HEPTv2) is real and has real reported results, but its code is not public -- this is
+  the single biggest drag on the score below (Software Environment 0/5, Reference
+  Solution 1/5) and the team's own highest-leverage fix.
+
+# --- Category 1: Software Environment (1 point per true item, max 5) ---
+software_environment:
+  - id: code_available
+    description: "The code is available to reproduce the baseline reference solution."
+    met: false
+    evidence: "reference_solution/README.md: code referenced only as internal heptv2/EIC.md, confirmed not public by the project team."
+  - id: code_complete
+    description: "The provided code is complete."
+    met: false
+    evidence: "No code provided to assess; even the described pipeline has an unbuilt decoder FPGA kernel (reference_solution/README.md, firmware status table)."
+  - id: code_documented
+    description: "The code itself is well documented."
+    met: false
+    evidence: "No code artifact exists to be documented -- only a slide deck describing it."
+  - id: code_runs_unmodified
+    description: "The code does not require any modifications to run."
+    met: false
+    evidence: "N/A -- no code exists to run."
+  - id: env_specified
+    description: "The environment is either containerized, or environment details and setup instructions are provided."
+    met: false
+    evidence: "Individual tools named (eic-shell 26.05, eicrecon 26.07.1, PyTorch, PQuant-ML, hls4ml) but not consolidated into one pinned environment file or container -- reference_solution/README.md Requirements, marked [GAP]."
+
+# --- Category 2: Problem Specification and Constraints (1 point per true item, max 5) ---
+problem_specification:
+  - id: constraints_provided
+    description: "System constraints (power, latency, throughput, etc.) are provided."
+    met: true
+    evidence: "README.md Section 1 constraints table: 0.6ms latency, FPGA deployment path, fixed-point arithmetic, on-chip weight storage, LUT ceiling."
+  - id: task_clear
+    description: "The benchmark task is clear."
+    met: true
+    evidence: "README.md Section 1: RECONSTRUCT + TAG sub-tasks stated concretely with target definition."
+  - id: dataset_format_specified
+    description: "The dataset format is clearly specified."
+    met: true
+    evidence: "data/SCHEMA.md: EDM4eic/PODIO, ROOT, Rucio DID access documented."
+  - id: inputs_specified
+    description: "The task inputs are clearly specified."
+    met: true
+    evidence: "data/SCHEMA.md: exact 15-feature-per-hit input vector table."
+  - id: outputs_specified
+    description: "The task outputs are clearly specified."
+    met: true
+    evidence: "README.md Section 1 Outputs: per-event hit-to-track mask set + signal-membership score."
+
+# --- Category 3: Dataset (4 FAIR points + 1 splits point, max 5) ---
+dataset:
+  fair:
+    - id: findable
+      description: "Each instance is uniquely identified and documented (Findable)."
+      met: true
+      evidence: "README.md Dataset FAIR checklist: Rucio DID per file, truth chain traces every hit to a unique MCParticle/event."
+    - id: accessible
+      description: "Access is provided through persistent, open protocols (Accessible)."
+      met: false
+      evidence: "README.md: access is via EIC/ePIC-collaboration Rucio infrastructure only, not a public/open protocol; DOE-sanctioned public sharing 'subject to DOE guidance' has not happened yet."
+    - id: interoperable
+      description: "Formats and metadata follow community standards (Interoperable)."
+      met: true
+      evidence: "EDM4eic/PODIO is the EIC collaboration's own standard data model for reconstructed output -- data/SCHEMA.md."
+    - id: reusable
+      description: "Versioning with associated preprocessing scripts enables full reproducibility (Reusable)."
+      met: false
+      evidence: "data/SCHEMA.md: the raw-to-filtered-schema extraction script is described but not yet a published, versioned artifact."
+  splits_defined:
+    description: "A canonical, non-overlapping train/validation/test split is provided."
+    met: false
+    evidence: "README.md Dataset Splits table: only ad hoc splits from one training run exist (495/49/5415-event samples); proposal's own Month 1-2 milestone to finalize splits has not occurred yet."
+
+# --- Category 4: Performance Metrics (Definitions 0-3 + Quality 0-2, max 5) ---
+performance_metrics:
+  definition_level: 3
+  definition_evidence: "README.md Section 3: every metric (per-hit/per-track AUROC, double majority, technical efficiency, fake rate, compression ratio, signal retention) has an exact formula with worked numeric evidence from the reference solution's own reported results."
+  quality_level: 2
+  quality_evidence: "Metric suite jointly captures physics correctness (DM/efficiency/fake-rate/AUROC) AND deployability (bit-operations, latency as a hard constraint) -- matches the benchmark's stated dual goal of physics-preserving AND deployable models, not physics accuracy alone."
+
+# --- Category 5: Reference Solution (1 point per true item, max 5) ---
+reference_solution:
+  - id: publicly_available
+    description: "A reference solution is publicly available."
+    met: false
+    evidence: "reference_solution/README.md: code confirmed not public; only a slide deck exists publicly (on Indico)."
+  - id: well_documented
+    description: "The provided reference solution is well documented."
+    met: false
+    evidence: "Nothing computational is 'provided' to be documented -- a slide deck describes architecture and results but there is no accompanying code/config to call well-documented in the rubric's sense."
+  - id: requirements_listed
+    description: "All hardware and/or software requirements to run the reference solution are listed."
+    met: true
+    evidence: "reference_solution/README.md Requirements: eic-shell/eicrecon versions, PyTorch/PQuant-ML/WANDA, hls4ml/Vitis HLS/Alveo U250 all named, even though not yet pinned to exact versions everywhere."
+  - id: metrics_evaluated
+    description: "All metrics defined as part of the benchmark are evaluated as part of the reference solution."
+    met: false
+    evidence: "README.md Section 3: the Robustness metric (stability across >=3 background-rate conditions) has no reported reference-solution result -- only single-background-rate numbers exist."
+  - id: baseline_open
+    description: "The baseline solution/model is openly available for study (architecture, hyperparameters, and training code if a neural network)."
+    met: false
+    evidence: "Architecture and hyperparameters ARE described (reference_solution/README.md), but training code is not open -- both halves of this item are required, and training code fails it."
+
+# --- Category 6: Documentation (1 point per true item, max 5) ---
+documentation:
+  - id: task_explained
+    description: "The task is explained and well documented."
+    met: true
+    evidence: "README.md Section 1, plus data/SCHEMA.md target definition."
+  - id: background_explained
+    description: "The task and benchmark background (scientific and otherwise) is clearly explained."
+    met: true
+    evidence: "README.md Section 5 Background: EIC occupancy problem, sPHENIX precedent, SVT noise-study context."
+  - id: motivation_explained
+    description: "The motivation for the benchmark is clearly explained."
+    met: true
+    evidence: "README.md Section 5 Motivation: streaming-readout-with-no-trigger argument, physics-reach impact."
+  - id: evaluation_explained
+    description: "The evaluation criteria are clearly explained."
+    met: true
+    evidence: "README.md Section 3 (metric definitions) cross-referenced from Section 5 Evaluation criteria."
+  - id: paper_exists
+    description: "An academic paper about the benchmark exists."
+    met: false
+    evidence: "README.md Section 5: closest artifact is the DOE Genesis Mission funding proposal, not a benchmark paper."
+
+# --- Motif tagging (not scored, but expected metadata) ---
+motifs:
+  scientific_motifs: ["High-Energy Physics"]
+  ai_ml_motif: "Classification"
+  computing_motifs: ["Latency Bound", "Memory Bound", "Throughput Bound"]
