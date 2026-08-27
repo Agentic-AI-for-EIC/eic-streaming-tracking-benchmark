@@ -1,0 +1,146 @@
+# MLCommons Science Benchmarks corpus entry
+# Format: https://github.com/mlcommons-science/benchmark/blob/main/source/benchmarks-format.yaml
+# See references/mlcommons-corpus-format.md (in the benchmark-builder skill) for the
+# full field-by-field guide.
+#
+# Generated from README.md + rubric.yaml as of 2026-08-26. This benchmark is a WORKING
+# DRAFT (see README.md "Status") -- several fields below are honest about that rather
+# than rounding up. `url` and `contact` were confirmed with the user rather than assumed.
+
+- date: "2026-08-26"          # no published paper date exists yet; using the benchmark card's own drafting date
+  version: "v1.0"
+  last_updated: "2026-08-26"
+  expired: "no"
+  valid: false                 # reference solution code is not public and not independently re-run -- not yet verified working
+  valid_date: "2026-08-26"
+
+  name: "EIC Streaming Tracking Benchmark"
+  url: "https://github.com/Agentic-AI-for-EIC/eic-streaming-tracking-benchmark"
+  # doi: omitted -- none exists yet
+
+  domain:
+    - "High-Energy Physics"
+
+  focus: >
+    Given an unordered ~2 microsecond window of ePIC central-tracker hits containing
+    exactly one buried DIS physics event on top of continuous beam/synchrotron
+    background, reconstruct the tracks belonging to that event and tag which
+    reconstructed objects are signal rather than overlay, within a 0.6 ms latency
+    budget that must eventually fit inside the readout firmware.
+
+  keywords:
+    - "particle tracking"
+    - "streaming readout"
+    - "point transformer"
+    - "quantization"
+    - "pruning"
+    - "FPGA deployment"
+    - "electron-ion collider"
+    - "ePIC"
+
+  summary: |
+    The EIC's innermost silicon tracking layers face synchrotron/beam-gas background
+    occupancy roughly three orders of magnitude above the true deep-inelastic-scattering
+    (DIS) signal rate, and ePIC's streaming readout has no hardware trigger to filter this
+    inline. This benchmark asks a model to jointly (a) group an unordered set of tracker
+    hits into tracks belonging to the one true signal event in the window, and (b) tag
+    signal vs. background hits/tracks using relative-timing coincidence (not geometry
+    alone), while satisfying a hard deployability budget: <=0.6 ms end-to-end latency with
+    a path to fixed-point FPGA firmware. It is a multi-dimensional (Pareto) benchmark --
+    physics-quality metrics (Double Majority, technical efficiency, fake rate, per-hit/
+    per-track AUROC) are compared at a fixed resource/latency budget, not traded off
+    against it freely. The reference solution (HEPTv2, an LSH point-transformer adapted
+    from the CMS L1-trigger HEPT architecture) reaches per-hit AUROC 0.992 and Double
+    Majority 0.597 on a small (495-event) mixed sample, with a 6-bit/48%-sparse compressed
+    variant giving 211x fewer bit-operations at matched accuracy and fitting on-chip
+    (127 KB). This is a working draft, not the team's finalized benchmark: canonical
+    dataset splits are not yet frozen and the reference solution's code is not yet public
+    -- see README.md for the full, evidence-cited gap list.
+
+  licensing: "Not yet specified -- [GAP], no LICENSE file exists in the benchmark package yet."
+
+  task_types:
+    - "Classification"
+
+  ai_capability_measured:
+    - "Real-time signal/background discrimination under streaming readout constraints"
+    - "Deployability under a fixed latency/resource budget (compression, quantization, FPGA feasibility)"
+
+  metrics:
+    - "Per-hit signal AUROC"
+    - "Per-track signal AUROC"
+    - "Double Majority"
+    - "Technical efficiency"
+    - "Fake rate"
+    - "Compression ratio (bit-operations)"
+    - "Signal retention"
+    - "Robustness"
+
+  models:
+    - "HEPTv2 (LSH point transformer)"
+
+  ml_motif:
+    - "Classification"
+
+  type: "Benchmark"
+
+  ml_task:
+    - "Supervised Learning"
+
+  notes: >
+    Working draft assembled from the DOE Genesis Mission Phase I proposal and Aug 2026
+    project meeting materials (see README.md Sources), not yet the team's finalized
+    benchmark -- dataset splits and reference-solution code release are the two
+    highest-leverage open items (see rubric.yaml). AI/ML motif "Classification" is a
+    documented judgment call: the benchmark is really two coupled tasks (classification +
+    structured set-prediction/track grouping), and the taxonomy has no clean tag for the
+    latter -- see README.md "Motif tagging".
+
+  contact:
+    name: "nhanvtran"
+    email: "nhan.v.tran@gmail.com"
+
+  cite:
+    - |
+      @misc{eic_streaming_tracking_benchmark_2026,
+        title        = {EIC Streaming Tracking Benchmark (working draft)},
+        author       = {{Agentic AI for EIC (Purdue/FNAL/LANL/MIT/NJIT)}},
+        year         = {2026},
+        howpublished = {DOE Genesis Mission Phase I project materials, Indico category 21857},
+        url          = {https://indico.cern.ch/category/21857},
+        note         = {No formal citation exists yet; cite the Indico category and the reference-solution talk by J. Schulte (26 Aug 2026) until one is published.}
+      }
+
+  datasets:
+    links:
+      - name: "ePIC full-detector MC (DIS NC 10x100 GeV, campaign 26.07.1, epic_craterlake), via Rucio"
+        url: "https://eic.github.io/tutorial-file-access/01-introduction.html"
+
+  results:
+    links:
+      - name: "EIC Streaming Tracking Benchmark repo (README.md Sections 3-4, SCORE_REPORT.md)"
+        url: "https://github.com/Agentic-AI-for-EIC/eic-streaming-tracking-benchmark"
+
+  fair:
+    reproducible: false          # not independently re-run this session -- reference solution code is not public
+    benchmark_ready: false       # dataset splits not yet frozen, reference solution code not public
+
+  ratings:
+    software:
+      rating: 0.0
+      reason: "Reference solution code not public; not containerized; no pinned environment file."
+    specification:
+      rating: 5.0
+      reason: "None."
+    dataset:
+      rating: 2.0
+      reason: "Not yet accessible via an open protocol; preprocessing script not published; canonical splits not finalized."
+    metrics:
+      rating: 5.0
+      reason: "None."
+    reference_solution:
+      rating: 1.0
+      reason: "Code not public or documented as code; training code not open; Robustness metric not evaluated."
+    documentation:
+      rating: 4.0
+      reason: "No academic paper about the benchmark exists yet."
