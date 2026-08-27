@@ -19,14 +19,19 @@
   # doi: omitted -- none exists yet
 
   domain:
-    - "High-Energy Physics"
+    - "Nuclear Physics"
 
   focus: >
     Given an unordered ~2 microsecond window of ePIC central-tracker hits containing
     exactly one buried DIS physics event on top of continuous beam/synchrotron
-    background, reconstruct the tracks belonging to that event and tag which
-    reconstructed objects are signal rather than overlay, within a 0.6 ms latency
-    budget that must eventually fit inside the readout firmware.
+    background, reconstruct the tracks belonging to that event (the task) and tag
+    which reconstructed objects are signal rather than overlay (the task's other
+    half), scored against the metrics defined in Section 3 (Double Majority,
+    technical efficiency, fake rate, per-hit/per-track AUROC, compression ratio,
+    signal retention) while satisfying fixed system constraints: <=0.6 ms end-to-end
+    latency, a path to fixed-point FPGA firmware, and an approximate ~1.4 Tb/s
+    (~171 GB/s) sustained input data rate computed from the ~5,700-hit/window,
+    15-feature-per-hit input over the 2 microsecond window.
 
   keywords:
     - "particle tracking"
@@ -45,8 +50,11 @@
     inline. This benchmark asks a model to jointly (a) group an unordered set of tracker
     hits into tracks belonging to the one true signal event in the window, and (b) tag
     signal vs. background hits/tracks using relative-timing coincidence (not geometry
-    alone), while satisfying a hard deployability budget: <=0.6 ms end-to-end latency with
-    a path to fixed-point FPGA firmware. It is a multi-dimensional (Pareto) benchmark --
+    alone), while satisfying a hard deployability budget: <=0.6 ms end-to-end latency, a
+    path to fixed-point FPGA firmware, and an approximate ~1.4 Tb/s (~171 GB/s) sustained
+    input data rate (computed from ~5,700 hits/window x 15 features/hit over the 2 us
+    window -- see README.md Section 1 for the full derivation and its assumptions). It is
+    a multi-dimensional (Pareto) benchmark --
     physics-quality metrics (Double Majority, technical efficiency, fake rate, per-hit/
     per-track AUROC) are compared at a fixed resource/latency budget, not traded off
     against it freely. The reference solution (HEPTv2, an LSH point-transformer adapted

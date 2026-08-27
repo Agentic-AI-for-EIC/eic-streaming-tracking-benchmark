@@ -116,9 +116,9 @@
 <body>
 <div class="wrap">
   <div class="breadcrumb"><a href="https://mlcommons-science.github.io/benchmark/md/benchmarks/">&larr; All benchmarks</a></div>
-  <p class="eyebrow">High-Energy Physics &middot; Benchmark</p>
+  <p class="eyebrow">Nuclear Physics &middot; Benchmark</p>
   <h1>EIC Streaming Tracking Benchmark</h1>
-  <p class="focus">Given an unordered ~2 microsecond window of ePIC central-tracker hits containing exactly one buried DIS physics event on top of continuous beam/synchrotron background, reconstruct the tracks belonging to that event and tag which reconstructed objects are signal rather than overlay, within a 0.6 ms latency budget that must eventually fit inside the readout firmware.</p>
+  <p class="focus">Given an unordered ~2 microsecond window of ePIC central-tracker hits containing exactly one buried DIS physics event on top of continuous beam/synchrotron background, reconstruct the tracks belonging to that event (the task) and tag which reconstructed objects are signal rather than overlay (the task&#x27;s other half), scored against the metrics defined in Section 3 (Double Majority, technical efficiency, fake rate, per-hit/per-track AUROC, compression ratio, signal retention) while satisfying fixed system constraints: &lt;=0.6 ms end-to-end latency, a path to fixed-point FPGA firmware, and an approximate ~1.4 Tb/s (~171 GB/s) sustained input data rate computed from the ~5,700-hit/window, 15-feature-per-hit input over the 2 microsecond window.</p>
   <div class='draft-banner'>Working draft &mdash; not yet verified as a reproducible, runnable benchmark (see Ratings below for specifics).</div>
 
   <h2>Summary</h2>
@@ -128,8 +128,11 @@ occupancy roughly three orders of magnitude above the true deep-inelastic-scatte
 inline. This benchmark asks a model to jointly (a) group an unordered set of tracker
 hits into tracks belonging to the one true signal event in the window, and (b) tag
 signal vs. background hits/tracks using relative-timing coincidence (not geometry
-alone), while satisfying a hard deployability budget: &lt;=0.6 ms end-to-end latency with
-a path to fixed-point FPGA firmware. It is a multi-dimensional (Pareto) benchmark --
+alone), while satisfying a hard deployability budget: &lt;=0.6 ms end-to-end latency, a
+path to fixed-point FPGA firmware, and an approximate ~1.4 Tb/s (~171 GB/s) sustained
+input data rate (computed from ~5,700 hits/window x 15 features/hit over the 2 us
+window -- see README.md Section 1 for the full derivation and its assumptions). It is
+a multi-dimensional (Pareto) benchmark --
 physics-quality metrics (Double Majority, technical efficiency, fake rate, per-hit/
 per-track AUROC) are compared at a fixed resource/latency budget, not traded off
 against it freely. The reference solution (HEPTv2, an LSH point-transformer adapted
@@ -144,7 +147,7 @@ dataset splits are not yet frozen and the reference solution&#x27;s code is not 
   <dl class="meta-grid">
     <dt>Date</dt><dd>2026-08-26</dd>
     <dt>Version</dt><dd>v1.0</dd>
-    <dt>Domain</dt><dd>High-Energy Physics</dd>
+    <dt>Domain</dt><dd>Nuclear Physics</dd>
     <dt>Task Types</dt><dd>Classification</dd>
     <dt>Metrics</dt><dd>Per-hit signal AUROC, Per-track signal AUROC, Double Majority, Technical efficiency, Fake rate, Compression ratio (bit-operations), Signal retention, Robustness</dd>
     <dt>Models</dt><dd>HEPTv2 (LSH point transformer)</dd>

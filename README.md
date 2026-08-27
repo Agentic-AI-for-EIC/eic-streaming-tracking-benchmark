@@ -6,7 +6,7 @@
 > than overlay — all within a resource budget that must eventually fit inside the readout
 > firmware, because ePIC has no hardware trigger to do this filtering for you.
 
-**Scientific Motif(s):** High-Energy Physics
+**Scientific Motif(s):** Nuclear Physics
 **AI/ML Motif:** Classification *(judgment call — see "Motif tagging" below)*
 **Computing Motif(s):** Latency Bound · Memory Bound · Throughput Bound
 
@@ -66,10 +66,36 @@ optimized):
 | Arithmetic | Fixed-point only in the deployed path (no practical float32 on fabric) | HEPTv2/hls4ml slide deck, "Compression" section |
 | On-chip weight storage | Full-precision (1.59M-param, fp32) baseline does **not** fit; compressed variant (337k params, 6-bit, 48% sparse, 127 KB) does | Same source |
 | Resource ceiling | Reference HLS kernel already reaches ~97% LUT at sequence length 600 on a Xilinx Alveo U250 | Same source |
+| Input data rate (approx.) | **~342 KB/window, ~1.4 Tb/s (~171 GB/s) sustained** | Computed, not sourced — see derivation below |
 
 `[GAP]` The 0.6 ms figure is carried over from the proposal text, which itself marks it
 "(TBD, ePIC streaming...)" — the team decided to pin it here for now, but it has not been
 independently re-derived or confirmed against the actual ePIC TimeFrame spec.
+
+**Input data rate — derivation (approximate, computed here, not a sourced figure).**
+The model consumes 15 features/hit (`data/SCHEMA.md`), and the reference mixed sample
+carries ~5,700 hits per ~2 µs window (README Section 2 / Inputs above):
+
+```
+5,700 hits/window × 15 features/hit × 4 bytes/feature (float32 assumed)
+  = 342,000 bytes ≈ 342 KB per 2 µs window
+
+342,000 bytes ÷ 2×10⁻⁶ s ≈ 1.71×10¹¹ bytes/s ≈ 171 GB/s ≈ 1.4 Tb/s sustained
+```
+
+Sanity check: 5,700 hits / 2 µs = 2.85 GHz hit rate, consistent with the Dataset
+section's independent statement that inner-pixel synchrotron background "exceeds GHz
+rates." Two things to flag about this estimate:
+
+- **It's a lower bound.** This counts only the 15 filtered model-input features per hit,
+  not the raw `eicrecon`/EDM4eic stream (>1,000 branches/collections per
+  `data/SCHEMA.md`) that the filtered schema is itself extracted from — actual on-detector
+  raw bandwidth is substantially higher.
+- **4 bytes/feature (float32) is an assumption**, not a spec'd wire format — the
+  deployed/fixed-point path (see Arithmetic constraint above) would use a narrower
+  representation, which would lower this figure; nothing in the source material pins an
+  actual on-wire byte width yet, so treat 342 KB/window as an order-of-magnitude anchor
+  for reasoning about the problem, not a hardware requirement to design against directly.
 
 ---
 
@@ -324,7 +350,7 @@ from High-Complexity EIC Data Streams") and, for the reference solution specific
 
 ## Motif tagging
 
-**Scientific Motif:** High-Energy Physics.
+**Scientific Motif:** Nuclear Physics.
 
 **AI/ML Motif — judgment call.** The taxonomy requires exactly one tag, but this
 benchmark is genuinely two coupled tasks: a **Classification** problem (per-hit/per-track

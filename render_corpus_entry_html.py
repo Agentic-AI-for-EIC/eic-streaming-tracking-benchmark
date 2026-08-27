@@ -220,7 +220,7 @@ PAGE_TEMPLATE = """<!doctype html>
 <body>
 <div class="wrap">
   <div class="breadcrumb"><a href="https://mlcommons-science.github.io/benchmark/md/benchmarks/">&larr; All benchmarks</a></div>
-  <p class="eyebrow">High-Energy Physics &middot; Benchmark</p>
+  <p class="eyebrow">{domain_eyebrow} &middot; Benchmark</p>
   <h1>{name}</h1>
   <p class="focus">{focus}</p>
   {draft_banner}
@@ -313,6 +313,7 @@ def build_page(entry):
         date=_esc(entry.get("date") or "—"),
         version=_esc(entry.get("version") or "—"),
         domain=_esc(", ".join(entry.get("domain") or []) or "—"),
+        domain_eyebrow=_esc(", ".join(entry.get("domain") or []) or "Benchmark"),
         task_types=_esc(", ".join(entry.get("task_types") or []) or "—"),
         metrics=_esc(", ".join(entry.get("metrics") or []) or "—"),
         models=_esc(", ".join(entry.get("models") or []) or "—"),

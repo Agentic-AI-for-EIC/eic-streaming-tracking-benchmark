@@ -38,6 +38,6 @@ Below the MLCommons Science Benchmark Endorsement threshold (overall >= 4.5) by 
 - [ ] A canonical, non-overlapping train/validation/test split is provided.
 
 ## Motif tags
-- Scientific motif(s): High-Energy Physics
+- Scientific motif(s): Nuclear Physics
 - AI/ML motif: Classification
 - Computing motif(s): Latency Bound, Memory Bound, Throughput Bound
