@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EIC Streaming Tracking Benchmark</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f6f7f9;
+    --surface: #ffffff;
+    --fg: #1a2027;
+    --muted: #5c6773;
+    --border: #dde1e7;
+    --accent: #2f5aa8;
+    --accent-fg: #ffffff;
+    --accent-bg: #e9eefb;
+    --card-bg: #eef1f6;
+    --radar-grid: #d3d9e2;
+    --radar-fill: #2f5aa8;
+    --radar-stroke: #1f3f7d;
+    --good-bg: #e4f3e8;
+    --good-fg: #1e6b3a;
+    --warn-bg: #fdf1de;
+    --warn-fg: #8a5a12;
+    --warn-border: #f0d6a8;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #11151b; --surface: #171c24; --fg: #e7eaf0; --muted: #94a0b0; --border: #2a313c;
+      --accent: #8faeef; --accent-fg: #0d1520; --accent-bg: #1c2740; --card-bg: #1a212b;
+      --radar-grid: #333c48; --radar-fill: #8faeef; --radar-stroke: #b9cdfa;
+      --good-bg: #133322; --good-fg: #7fdba0;
+      --warn-bg: #33270f; --warn-fg: #f0c264; --warn-border: #55401a;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #11151b; --surface: #171c24; --fg: #e7eaf0; --muted: #94a0b0; --border: #2a313c;
+    --accent: #8faeef; --accent-fg: #0d1520; --accent-bg: #1c2740; --card-bg: #1a212b;
+    --radar-grid: #333c48; --radar-fill: #8faeef; --radar-stroke: #b9cdfa;
+    --good-bg: #133322; --good-fg: #7fdba0;
+    --warn-bg: #33270f; --warn-fg: #f0c264; --warn-border: #55401a;
+  }
+  * { box-sizing: border-box; }
+  html { background: var(--bg); }
+  body {
+    margin: 0; background: var(--bg); color: var(--fg);
+    font-family: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    line-height: 1.6; -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 780px; margin: 0 auto; padding: 3rem 1.5rem 4.5rem; }
+  .breadcrumb {
+    font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 0.78rem;
+    text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 1.5rem;
+  }
+  .breadcrumb a { color: var(--muted); text-decoration: none; }
+  .breadcrumb a:hover { color: var(--accent); }
+  .eyebrow {
+    font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 0.72rem;
+    text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent); margin: 0 0 0.6rem;
+  }
+  h1 { font-size: 2.1rem; font-weight: 700; margin: 0 0 0.5rem; text-wrap: balance; letter-spacing: -0.01em; }
+  .focus { color: var(--muted); font-size: 1.08rem; margin: 0 0 1.25rem; max-width: 62ch; text-wrap: pretty; }
+  .draft-banner {
+    background: var(--warn-bg); color: var(--warn-fg); border: 1px solid var(--warn-border);
+    border-radius: 8px; padding: 0.8rem 1rem; font-size: 0.88rem; margin: 0 0 1.75rem;
+  }
+  h2 {
+    font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 0.82rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted);
+    border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; margin: 2.5rem 0 1.1rem;
+  }
+  .meta-grid { display: grid; grid-template-columns: minmax(0,11rem) 1fr; row-gap: 0.6rem; column-gap: 1.25rem; font-size: 0.95rem; }
+  .meta-grid dt { color: var(--muted); font-weight: 500; }
+  .meta-grid dd { margin: 0; }
+  ul.resource-list { list-style: none; padding: 0; margin: 0; font-size: 0.95rem; display: flex; flex-direction: column; gap: 0.5rem; }
+  ul.resource-list li { word-break: break-word; }
+  ul.resource-list strong { font-weight: 500; color: var(--muted); }
+  a { color: var(--accent); }
+  .tag {
+    display: inline-block; background: var(--accent-bg); color: var(--accent); border-radius: 4px;
+    padding: 0.25rem 0.6rem; font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 0.78rem;
+    margin: 0 0.4rem 0.4rem 0;
+  }
+  p.summary { font-size: 0.98rem; max-width: 66ch; text-wrap: pretty; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.92rem; margin-top: 0.25rem; }
+  th, td { text-align: left; padding: 0.6rem 0.7rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em;
+    font-family: "IBM Plex Mono", ui-monospace, monospace; }
+  .score-cell { font-family: "IBM Plex Mono", ui-monospace, monospace; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .avg-row td { font-weight: 700; border-top: 2px solid var(--border); border-bottom: none; }
+  .table-scroll { overflow-x: auto; }
+  .endorsed {
+    display: inline-block; margin-top: 0.85rem; padding: 0.4rem 0.85rem; border-radius: 6px;
+    font-size: 0.82rem; font-weight: 600; font-family: "IBM Plex Mono", ui-monospace, monospace;
+  }
+  .endorsed.yes { background: var(--good-bg); color: var(--good-fg); }
+  .endorsed.no { background: var(--card-bg); color: var(--muted); border: 1px solid var(--border); }
+  .radar-wrap {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    padding: 1.5rem; max-width: 420px; margin: 0.5rem auto 0;
+  }
+  .radar-label { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 10px; fill: var(--fg); }
+  pre.citation {
+    background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px;
+    padding: 1rem; font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 0.78rem;
+    overflow-x: auto; white-space: pre-wrap; word-break: break-word; line-height: 1.5;
+  }
+  footer { margin-top: 3.5rem; padding-top: 1.25rem; border-top: 1px solid var(--border); color: var(--muted); font-size: 0.8rem; }
+  a:focus-visible, .breadcrumb a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="breadcrumb"><a href="https://mlcommons-science.github.io/benchmark/md/benchmarks/">&larr; All benchmarks</a></div>
+  <p class="eyebrow">High-Energy Physics &middot; Benchmark</p>
+  <h1>EIC Streaming Tracking Benchmark</h1>
+  <p class="focus">Given an unordered ~2 microsecond window of ePIC central-tracker hits containing exactly one buried DIS physics event on top of continuous beam/synchrotron background, reconstruct the tracks belonging to that event and tag which reconstructed objects are signal rather than overlay, within a 0.6 ms latency budget that must eventually fit inside the readout firmware.</p>
+  <div class='draft-banner'>Working draft &mdash; not yet verified as a reproducible, runnable benchmark (see Ratings below for specifics).</div>
+
+  <h2>Summary</h2>
+  <p class="summary">The EIC&#x27;s innermost silicon tracking layers face synchrotron/beam-gas background
+occupancy roughly three orders of magnitude above the true deep-inelastic-scattering
+(DIS) signal rate, and ePIC&#x27;s streaming readout has no hardware trigger to filter this
+inline. This benchmark asks a model to jointly (a) group an unordered set of tracker
+hits into tracks belonging to the one true signal event in the window, and (b) tag
+signal vs. background hits/tracks using relative-timing coincidence (not geometry
+alone), while satisfying a hard deployability budget: &lt;=0.6 ms end-to-end latency with
+a path to fixed-point FPGA firmware. It is a multi-dimensional (Pareto) benchmark --
+physics-quality metrics (Double Majority, technical efficiency, fake rate, per-hit/
+per-track AUROC) are compared at a fixed resource/latency budget, not traded off
+against it freely. The reference solution (HEPTv2, an LSH point-transformer adapted
+from the CMS L1-trigger HEPT architecture) reaches per-hit AUROC 0.992 and Double
+Majority 0.597 on a small (495-event) mixed sample, with a 6-bit/48%-sparse compressed
+variant giving 211x fewer bit-operations at matched accuracy and fitting on-chip
+(127 KB). This is a working draft, not the team&#x27;s finalized benchmark: canonical
+dataset splits are not yet frozen and the reference solution&#x27;s code is not yet public
+-- see README.md for the full, evidence-cited gap list.</p>
+
+  <h2>Metadata</h2>
+  <dl class="meta-grid">
+    <dt>Date</dt><dd>2026-08-26</dd>
+    <dt>Version</dt><dd>v1.0</dd>
+    <dt>Domain</dt><dd>High-Energy Physics</dd>
+    <dt>Task Types</dt><dd>Classification</dd>
+    <dt>Metrics</dt><dd>Per-hit signal AUROC, Per-track signal AUROC, Double Majority, Technical efficiency, Fake rate, Compression ratio (bit-operations), Signal retention, Robustness</dd>
+    <dt>Models</dt><dd>HEPTv2 (LSH point transformer)</dd>
+    <dt>AI/ML Motif</dt><dd>Classification</dd>
+    <dt>Learning Paradigm</dt><dd>Supervised Learning</dd>
+    <dt>AI Capability Measured</dt><dd>Real-time signal/background discrimination under streaming readout constraints, Deployability under a fixed latency/resource budget (compression, quantization, FPGA feasibility)</dd>
+    <dt>License</dt><dd>Not yet specified -- [GAP], no LICENSE file exists in the benchmark package yet.</dd>
+  </dl>
+
+  <h2>Resources</h2>
+  <ul class="resource-list">
+    <li><strong>Benchmark:</strong> <a href="https://github.com/Agentic-AI-for-EIC/eic-streaming-tracking-benchmark">https://github.com/Agentic-AI-for-EIC/eic-streaming-tracking-benchmark</a></li><li><strong>Dataset:</strong> <a href="https://eic.github.io/tutorial-file-access/01-introduction.html">ePIC full-detector MC (DIS NC 10x100 GeV, campaign 26.07.1, epic_craterlake), via Rucio</a></li><li><strong>Results:</strong> <a href="https://github.com/Agentic-AI-for-EIC/eic-streaming-tracking-benchmark">EIC Streaming Tracking Benchmark repo (README.md Sections 3-4, SCORE_REPORT.md)</a></li>
+  </ul>
+
+  <h2>Keywords</h2>
+  <div><span class="tag">particle tracking</span><span class="tag">streaming readout</span><span class="tag">point transformer</span><span class="tag">quantization</span><span class="tag">pruning</span><span class="tag">FPGA deployment</span><span class="tag">electron-ion collider</span><span class="tag">ePIC</span></div>
+
+  <h2>Citation</h2>
+  <pre class='citation'>@misc{eic_streaming_tracking_benchmark_2026,
+  title        = {EIC Streaming Tracking Benchmark (working draft)},
+  author       = {{Agentic AI for EIC (Purdue/FNAL/LANL/MIT/NJIT)}},
+  year         = {2026},
+  howpublished = {DOE Genesis Mission Phase I project materials, Indico category 21857},
+  url          = {https://indico.cern.ch/category/21857},
+  note         = {No formal citation exists yet; cite the Indico category and the reference-solution talk by J. Schulte (26 Aug 2026) until one is published.}
+}
+</pre>
+
+  <h2>Ratings</h2>
+  <div class="table-scroll">
+  <table>
+    <thead><tr><th>Category</th><th>Rating</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>Software</td><td class='score-cell'>0.00 / 5</td><td>Reference solution code not public; not containerized; no pinned environment file.</td></tr>
+      <tr><td>Specification</td><td class='score-cell'>5.00 / 5</td><td>None.</td></tr>
+      <tr><td>Dataset</td><td class='score-cell'>2.00 / 5</td><td>Not yet accessible via an open protocol; preprocessing script not published; canonical splits not finalized.</td></tr>
+      <tr><td>Metrics</td><td class='score-cell'>5.00 / 5</td><td>None.</td></tr>
+      <tr><td>Reference Solution</td><td class='score-cell'>1.00 / 5</td><td>Code not public or documented as code; training code not open; Robustness metric not evaluated.</td></tr>
+      <tr><td>Documentation</td><td class='score-cell'>4.00 / 5</td><td>No academic paper about the benchmark exists yet.</td></tr>
+      <tr class="avg-row"><td>Average</td><td class="score-cell">2.83 / 5</td><td></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <span class="endorsed no">Below Endorsement threshold (avg >= 4.5/5) by 1.67</span>
+
+  <h2>Rating Radar</h2>
+  <div class="radar-wrap"><svg viewBox="0 0 360 360" width="100%" height="auto" role="img" aria-label="Rating radar chart"><polygon points="180.0,154.1 202.4,167.0 202.4,193.0 180.0,205.9 157.6,193.0 157.6,167.0" fill="none" stroke="var(--radar-grid)" stroke-width="1"/><polygon points="180.0,128.2 224.9,154.1 224.9,205.9 180.0,231.8 135.1,205.9 135.1,154.1" fill="none" stroke="var(--radar-grid)" stroke-width="1"/><polygon points="180.0,102.2 247.3,141.1 247.3,218.9 180.0,257.8 112.7,218.9 112.7,141.1" fill="none" stroke="var(--radar-grid)" stroke-width="1"/><polygon points="180.0,76.3 269.8,128.2 269.8,231.8 180.0,283.7 90.2,231.8 90.2,128.2" fill="none" stroke="var(--radar-grid)" stroke-width="1"/><polygon points="180.0,50.4 292.2,115.2 292.2,244.8 180.0,309.6 67.8,244.8 67.8,115.2" fill="none" stroke="var(--radar-grid)" stroke-width="1"/><line x1="180.0" y1="180.0" x2="180.0" y2="50.4" stroke="var(--radar-grid)" stroke-width="1"/><line x1="180.0" y1="180.0" x2="292.2" y2="115.2" stroke="var(--radar-grid)" stroke-width="1"/><line x1="180.0" y1="180.0" x2="292.2" y2="244.8" stroke="var(--radar-grid)" stroke-width="1"/><line x1="180.0" y1="180.0" x2="180.0" y2="309.6" stroke="var(--radar-grid)" stroke-width="1"/><line x1="180.0" y1="180.0" x2="67.8" y2="244.8" stroke="var(--radar-grid)" stroke-width="1"/><line x1="180.0" y1="180.0" x2="67.8" y2="115.2" stroke="var(--radar-grid)" stroke-width="1"/><polygon points="180.0,180.0 292.2,115.2 224.9,205.9 180.0,309.6 157.6,193.0 90.2,128.2" fill="var(--radar-fill)" fill-opacity="0.35" stroke="var(--radar-stroke)" stroke-width="2"/><circle cx="180.0" cy="180.0" r="3" fill="var(--radar-stroke)"/><circle cx="292.2" cy="115.2" r="3" fill="var(--radar-stroke)"/><circle cx="224.9" cy="205.9" r="3" fill="var(--radar-stroke)"/><circle cx="180.0" cy="309.6" r="3" fill="var(--radar-stroke)"/><circle cx="157.6" cy="193.0" r="3" fill="var(--radar-stroke)"/><circle cx="90.2" cy="128.2" r="3" fill="var(--radar-stroke)"/><text x="180.0" y="14.4" text-anchor="middle" dominant-baseline="middle" class="radar-label">Software (0.0)</text><text x="323.4" y="97.2" text-anchor="start" dominant-baseline="middle" class="radar-label">Specification (5.0)</text><text x="323.4" y="262.8" text-anchor="start" dominant-baseline="middle" class="radar-label">Dataset (2.0)</text><text x="180.0" y="345.6" text-anchor="middle" dominant-baseline="middle" class="radar-label">Metrics (5.0)</text><text x="36.6" y="262.8" text-anchor="end" dominant-baseline="middle" class="radar-label">Reference Solution (1.0)</text><text x="36.6" y="97.2" text-anchor="end" dominant-baseline="middle" class="radar-label">Documentation (4.0)</text></svg></div>
+
+  <footer>
+    Generated from an MLCommons corpus-entry YAML by benchmark-builder, styled after the
+    <a href="https://mlcommons-science.github.io/benchmark/">MLCommons Science Working Group
+    AI Benchmarks Collection</a>. Working draft assembled from the DOE Genesis Mission Phase I proposal and Aug 2026 project meeting materials (see README.md Sources), not yet the team&#x27;s finalized benchmark -- dataset splits and reference-solution code release are the two highest-leverage open items (see rubric.yaml). AI/ML motif &quot;Classification&quot; is a documented judgment call: the benchmark is really two coupled tasks (classification + structured set-prediction/track grouping), and the taxonomy has no clean tag for the latter -- see README.md &quot;Motif tagging&quot;.
+
+  </footer>
+</div>
+</body>
+</html>
