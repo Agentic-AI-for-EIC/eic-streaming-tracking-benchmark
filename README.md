@@ -215,98 +215,54 @@ advantage" being about both at once, not physics performance alone.
 
 ## 4. Reference Solution
 
-**Summary.** HEPTv2 — an LSH (locality-sensitive-hashing) point transformer, adapted from
-the original HEPTv2 architecture (targeting the CMS L1 trigger) to ePIC central tracking
-by J. Schulte. Presented 26 Aug 2026 (Genesis eIC-agentic-AI meeting).
+**Summary.** The reference is the standard rule-based (non-AI) central-tracking
+reconstruction in **EICrecon**, the ePIC reconstruction framework
+(`https://github.com/eic/EICrecon`, LGPL-3.0). It is the accuracy reference, not a
+deployable one: it does not meet the bandwidth/latency constraints in Section 1, and
+AI submissions are compared to it at matched signal retention.
 
-**Architecture / method.**
-- **Input:** all hits as an unordered set (5,698 × 15 features in the reference run).
-- **Encoder ×4:** RMSNorm → Q/K/V projection → E2LSH hash of each hit's coordinates
-  `(η, φ, t)` → sort by hash → attention restricted to fixed blocks of 256 hits (bucketing
-  turns quadratic attention near-linear while keeping spatially/temporally nearby hits
-  together) → unsort → feed-forward → residual. 3 independent hash rounds so a pair split
-  by one hashing round can still meet in another.
-- **Decoder ×2:** 256 learned query vectors cross-attend to encoded hits, self-attend to
-  each other, then feed-forward. Each query emits a mask over all hits (one query = one
-  candidate track); every hit takes the `argmax` over the 256 mask rows to get its track
-  label. Nothing in this construction enforces the result be a physically valid
-  trajectory — hence the post-processing step below.
-- **Signal head:** per-hit classifier on the encoder output, trained with
-  positive-weighted BCE; a track's signal score is the mean of its hits' scores.
-- **Post-processing (three-stage check, thresholds calibrated to the real-track p99):**
-  **Split** tracks at internal time gaps wider than any real track shows (real tracks span
-  ≤ 26.9 ns internally); **Trim** unassigns hits far from their track's median time;
-  **Reject** drops tracks with too many duplicate layers (a real track crosses each layer
-  ~once). Net effect on the test split: fake rate down 41% (0.281 → 0.166) with every
-  other reported metric simultaneously up.
-- **Hyperparameters (baseline → compressed variant actually deployed):** hidden width
-  128→64, attention heads 8→4, encoder blocks 4→3, decoder queries 256→64, output MLP
-  256×5→128×4, giving 1.59M→337k parameters and 16.5G→4.32G MACs/event. Accuracy is flat
-  across this range — degradation only starts below ~160k parameters.
-- **Quantization/pruning:** QAT via PQuant-ML (free to 6 bits, breaks at 4); WANDA pruning
-  (free to 66% sparsity alone, breaks at 79%; the two do **not** compose freely — combined
-  6-bit + 48% sparse gives 211× fewer bit-operations at DM 0.605 vs. 0.611 float32, while
-  6-bit + 66% sparse together costs far more, DM 0.562 — reported explicitly as a "fixed
-  redundancy budget" finding, not a mistake to silently avoid repeating).
-- **Deployability windowing:** input segmented 8 time-slices × 3 φ-slices (24 windows,
-  ~251 hits/window) to fit inside the hls4ml HLS kernel's deployable sequence-length range
-  (N ≤ 300 on a Xilinx Alveo U250) — this *improves* DM (0.571 vs. 0.552 unsplit) rather
-  than costing accuracy, because most windows are pure background and free to discard.
+> **UNCONFIRMED.** Identified from the benchmark owner's description and public
+> GitHub/tutorial pages. It has **not** been built or run for this benchmark, and its
+> algorithm details (ACTS seeding + Combinatorial Kalman Filter), configuration, and
+> results have not been verified against the source. No reference numbers exist yet.
+> See `reference_solution/README.md`.
 
-**Results** (pooled held-out test split, 49 events out of the 495-event mixed sample):
+**Method (`[UNCONFIRMED]`).** Rule/domain-based chain: seeding, then CKF track following
+and fitting, in the JANA2-based EICrecon. No training, so no learned weights.
 
-| Metric | Value |
-|---|---|
-| Per-hit signal AUROC | 0.992 (TPR 0.904 @ FPR 0.0076 at the 0.5 cut) |
-| Per-track signal AUROC | 0.927 |
-| Double Majority (post split+trim+reject) | 0.597 (0.563 before post-processing) |
-| Technical efficiency | 0.636 |
-| Fake rate | 0.166 (0.281 before post-processing) |
-| Perfect (hit-for-hit exact) tracks | 24% of signal tracks |
-| Compression (best deployable point) | 211× fewer bit-operations vs. fp32 baseline, DM 0.605 (unchanged within run-to-run scatter) |
-| Weight storage | 127 KB (from 6,210 KB fp32) — fits on-chip |
+**Output.** EDM4eic/PODIO ROOT (`*.eicrecon.tree.edm4eic.root`), the format
+`data/SCHEMA.md` and `metrics/score.py` assume. `github.com/eic/tutorial-analysis` shows
+how to read it (ROOT/uproot/RDataFrame).
 
-On the signal-only sample (5,415 events, no background overlay — the reference solution's
-own stand-in for a generalization/exemplar set) the same code reaches DM 0.841, 44%
-perfect — the gap to the mixed-sample numbers is attributed explicitly to training-sample
-size (~2,470 target tracks total in the mixed training split), not a modeling limitation.
+**Requirements (`[UNCONFIRMED]`).** `eic-shell 26.05`, `eicrecon 26.07.1` (campaign
+versions per the project materials); CPU-based. Latency and memory on this benchmark's
+events are `[GAP]`.
 
-**Requirements.**
-- **Training/simulation software:** `eic-shell 26.05`, `eicrecon 26.07.1`; PyTorch;
-  PQuant-ML for QAT; WANDA for pruning.
-- **Firmware path:** hls4ml (model → C++) → Vitis HLS → RTL, targeting a Xilinx Alveo
-  U250 (200 MHz). An HLS implementation of one HEPTv2 v1 encoder attention block already
-  exists in an hls4ml fork; the decoder has no kernel implementation yet (~3–4 weeks of
-  work estimated, though only 16% of compute at the deployed window size).
-- **Hardware for training/inference benchmarking:** reference CPU/GPU timing figures
-  (5.1 ms/event CPU on a Ryzen 9 7950X; 2.1 ms/event GPU on an RTX 2080 Ti; µs-scale on an
-  Alveo U250 at 200 MHz) are measured for the **upstream HEPT model on its own
-  (non-EIC) dataset**, not yet re-measured end-to-end on this ePIC-adapted model —
-  `[GAP]`, flagged explicitly by the source material itself ("the reference model on its
-  own dataset, not ours — the ratio is the point, not the absolute numbers").
-- **Broader project compute:** the team is provisioning Purdue Anvil (AMD EPYC CPUs +
-  NVIDIA A100 GPUs), Argonne Polaris/Aurora (AMD/Intel CPUs + A100/Intel Max GPUs), and
-  NERSC allocations; NVIDIA-side options under discussion include a
-  CUDA 12.2+/TensorRT/Triton stack for GPU-side inference serving. None of this is yet
-  consolidated into one pinned environment for this specific benchmark.
+**Results.** None yet (`[GAP]`): per-hit/per-track AUROC, Double Majority, technical
+efficiency, fake rate, and latency for the reference must be produced by running EICrecon
+on the mixed-background samples and scoring with `metrics/score.py`.
 
-**Code availability — `[GAP, confirmed by the team]`.** The reference implementation is
-referenced internally as `heptv2/EIC.md` but **is not publicly available**. This is a
-real, current gap against the Software Environment and Reference Solution rubric
-categories below, not an oversight in this write-up — publishing the code (even as a
-private-then-public GitHub release under `github.com/Agentic-AI-for-EIC`, the project's
-existing org) is the single highest-leverage fix available to this benchmark's rubric
-score.
+**Code availability.** EICrecon is public and open-licensed. What is missing is the
+benchmark-specific run recipe (config, collections, conversion to/from the 15-feature
+hit schema), which is `[GAP]`.
+
+**HEPTv2 (comparison entry).** The benchmark was first drafted with HEPTv2 (J. Schulte,
+26 Aug 2026), an LSH point transformer adapted from CMS L1-trigger HEPT, as the reference.
+Its code is not public, so it is now an AI comparison entry. Its slide-deck figures
+(per-hit AUROC 0.992, Double Majority 0.597, technical efficiency 0.636, fake rate 0.166,
+211x fewer bit-operations at 127 KB; 49 of 495 mixed events) are not independently
+reproduced. Details in `reference_solution/README.md`. Elsewhere in this card, "the
+reference solution's own" numbers and measurements (Sections 1-3) come from the HEPTv2
+deck and should be read as HEPTv2's, not the rule-based reference's.
 
 ---
 
 ## 5. Documentation and Reproducible Protocol
 
 **Reproduction steps.** `[GAP]` — no numbered, copy-pasteable reproduction script exists
-yet; what exists is a slide deck (`eic_hept_slides_JSchulte.pdf`) plus references to an
-internal `heptv2/EIC.md`. Writing this up as an actual runnable pipeline (data pull via
-Rucio DID → `eicrecon` → filtered-schema extraction → HEPTv2 train/eval →
-`scores.json`-equivalent) is the natural next step once the code above is public.
+yet. The reference (EICrecon rule-based tracking) is public but has not been run for this
+benchmark. The natural next step is a runnable pipeline: data pull via Rucio DID →
+`eicrecon` → filtered-schema extraction → `metrics/score.py` → `scores.json`-equivalent.
 
 **Environment.** `[GAP]` — not yet containerized or pinned as a single environment file;
 see "Requirements" above for the individual pieces (`eic-shell 26.05`, PyTorch, PQuant-ML,

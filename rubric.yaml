@@ -12,32 +12,33 @@ scored_date: "2026-08-26"
 notes: >
   Self-scored immediately after drafting the benchmark card from Indico materials
   (Genesis Mission Phase I proposal + Aug 2026 project meetings). The reference solution
-  (HEPTv2) is real and has real reported results, but its code is not public -- this is
-  the single biggest drag on the score below (Software Environment 0/5, Reference
-  Solution 1/5) and the team's own highest-leverage fix.
+  is the rule-based EICrecon central tracking (public, LGPL-3.0) -- UNCONFIRMED: named by
+  the benchmark owner, not yet built, run, or read for this benchmark, and it has no
+  benchmark results yet. HEPTv2 (originally the reference; code not public) is now an AI
+  comparison entry. Items below that depend on actually running the reference are false.
 
 # --- Category 1: Software Environment (1 point per true item, max 5) ---
 software_environment:
   - id: code_available
     description: "The code is available to reproduce the baseline reference solution."
-    met: false
-    evidence: "reference_solution/README.md: code referenced only as internal heptv2/EIC.md, confirmed not public by the project team."
+    met: true
+    evidence: "EICrecon is public (github.com/eic/EICrecon, LGPL-3.0). UNCONFIRMED: not built or run; benchmark-specific run recipe does not exist yet."
   - id: code_complete
     description: "The provided code is complete."
     met: false
-    evidence: "No code provided to assess; even the described pipeline has an unbuilt decoder FPGA kernel (reference_solution/README.md, firmware status table)."
+    evidence: "UNCONFIRMED: EICrecon not inspected or run; no benchmark-specific run/scoring pipeline exists yet."
   - id: code_documented
     description: "The code itself is well documented."
     met: false
-    evidence: "No code artifact exists to be documented -- only a slide deck describing it."
+    evidence: "UNCONFIRMED: EICrecon has public docs (eic.github.io/EICrecon) but its tracking code and docs were not reviewed."
   - id: code_runs_unmodified
     description: "The code does not require any modifications to run."
     met: false
-    evidence: "N/A -- no code exists to run."
+    evidence: "UNCONFIRMED: not run."
   - id: env_specified
     description: "The environment is either containerized, or environment details and setup instructions are provided."
     met: false
-    evidence: "Individual tools named (eic-shell 26.05, eicrecon 26.07.1, PyTorch, PQuant-ML, hls4ml) but not consolidated into one pinned environment file or container -- reference_solution/README.md Requirements, marked [GAP]."
+    evidence: "eic-shell 26.05 / eicrecon 26.07.1 named (reference_solution/README.md) but not confirmed as the reference-run versions, and not consolidated into a pinned environment file or container."
 
 # --- Category 2: Problem Specification and Constraints (1 point per true item, max 5) ---
 problem_specification:
@@ -97,24 +98,24 @@ performance_metrics:
 reference_solution:
   - id: publicly_available
     description: "A reference solution is publicly available."
-    met: false
-    evidence: "reference_solution/README.md: code confirmed not public; only a slide deck exists publicly (on Indico)."
+    met: true
+    evidence: "EICrecon is public and LGPL-3.0 (github.com/eic/EICrecon). UNCONFIRMED that its tracking chain is the exact reference configuration."
   - id: well_documented
     description: "The provided reference solution is well documented."
     met: false
-    evidence: "Nothing computational is 'provided' to be documented -- a slide deck describes architecture and results but there is no accompanying code/config to call well-documented in the rubric's sense."
+    evidence: "UNCONFIRMED: reference_solution/README.md describes it only from the owner's description and public pages; no run recipe or results."
   - id: requirements_listed
     description: "All hardware and/or software requirements to run the reference solution are listed."
     met: true
-    evidence: "reference_solution/README.md Requirements: eic-shell/eicrecon versions, PyTorch/PQuant-ML/WANDA, hls4ml/Vitis HLS/Alveo U250 all named, even though not yet pinned to exact versions everywhere."
+    evidence: "reference_solution/README.md Requirements: eic-shell/eicrecon versions named (UNCONFIRMED for the reference run); hardware/latency requirements are [GAP]."
   - id: metrics_evaluated
     description: "All metrics defined as part of the benchmark are evaluated as part of the reference solution."
     met: false
-    evidence: "README.md Section 3: the Robustness metric (stability across >=3 background-rate conditions) has no reported reference-solution result -- only single-background-rate numbers exist."
+    evidence: "No metric has been evaluated for the reference yet (it has not been run); Robustness additionally needs >=3 background-rate conditions."
   - id: baseline_open
     description: "The baseline solution/model is openly available for study (architecture, hyperparameters, and training code if a neural network)."
-    met: false
-    evidence: "Architecture and hyperparameters ARE described (reference_solution/README.md), but training code is not open -- both halves of this item are required, and training code fails it."
+    met: true
+    evidence: "Rule-based, no training: the algorithm is open source (EICrecon). UNCONFIRMED: exact algorithm/config parameters not yet read from the source."
 
 # --- Category 6: Documentation (1 point per true item, max 5) ---
 documentation:
