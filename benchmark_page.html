@@ -85,6 +85,7 @@
     margin: 0 0.4rem 0.4rem 0;
   }
   p.summary { font-size: 0.98rem; max-width: 66ch; text-wrap: pretty; }
+  p.constraints-link { font-size: 0.98rem; max-width: 66ch; }
   table { width: 100%; border-collapse: collapse; font-size: 0.92rem; margin-top: 0.25rem; }
   th, td { text-align: left; padding: 0.6rem 0.7rem; border-bottom: 1px solid var(--border); vertical-align: top; }
   th { color: var(--muted); font-weight: 600; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em;
@@ -135,13 +136,14 @@ window -- see README.md Section 1 for the full derivation and its assumptions). 
 a multi-dimensional (Pareto) benchmark --
 physics-quality metrics (Double Majority, technical efficiency, fake rate, per-hit/
 per-track AUROC) are compared at a fixed resource/latency budget, not traded off
-against it freely. The reference solution (HEPTv2, an LSH point-transformer adapted
-from the CMS L1-trigger HEPT architecture) reaches per-hit AUROC 0.992 and Double
-Majority 0.597 on a small (495-event) mixed sample, with a 6-bit/48%-sparse compressed
-variant giving 211x fewer bit-operations at matched accuracy and fitting on-chip
-(127 KB). This is a working draft, not the team&#x27;s finalized benchmark: canonical
-dataset splits are not yet frozen and the reference solution&#x27;s code is not yet public
--- see README.md for the full, evidence-cited gap list.</p>
+against it freely. The reference solution is the rule-based (non-AI) central tracking in
+EICrecon (public, LGPL-3.0); it does not meet the latency/bandwidth constraints and
+serves as the accuracy baseline. It is UNCONFIRMED: not yet built or run for this
+benchmark, so no reference results exist. HEPTv2 (an LSH point transformer adapted from
+CMS L1-trigger HEPT; slide-deck results per-hit AUROC 0.992, Double Majority 0.597, 211x
+fewer bit-operations) is an AI comparison entry. This is a working draft: canonical
+dataset splits are not yet frozen -- see README.md for the full, evidence-cited gap list.</p>
+  <p class="constraints-link"><strong>System constraints:</strong> <a href="hardware_architecture.html">Streaming data path: bandwidth and latency constraints (diagram)</a></p>
 
   <h2>Metadata</h2>
   <dl class="meta-grid">
@@ -181,20 +183,20 @@ dataset splits are not yet frozen and the reference solution&#x27;s code is not 
   <table>
     <thead><tr><th>Category</th><th>Rating</th><th>Notes</th></tr></thead>
     <tbody>
-      <tr><td>Software</td><td class='score-cell'>0.00 / 5</td><td>Reference solution code not public; not containerized; no pinned environment file.</td></tr>
+      <tr><td>Software</td><td class='score-cell'>1.00 / 5</td><td>Reference (EICrecon) is public but UNCONFIRMED/not run; no benchmark run recipe, not containerized, no pinned environment file.</td></tr>
       <tr><td>Specification</td><td class='score-cell'>5.00 / 5</td><td>None.</td></tr>
       <tr><td>Dataset</td><td class='score-cell'>2.00 / 5</td><td>Not yet accessible via an open protocol; preprocessing script not published; canonical splits not finalized.</td></tr>
       <tr><td>Metrics</td><td class='score-cell'>5.00 / 5</td><td>None.</td></tr>
-      <tr><td>Reference Solution</td><td class='score-cell'>1.00 / 5</td><td>Code not public or documented as code; training code not open; Robustness metric not evaluated.</td></tr>
+      <tr><td>Reference Solution</td><td class='score-cell'>3.00 / 5</td><td>Reference (EICrecon rule-based tracking) is public and open-licensed but UNCONFIRMED: not run, no benchmark results, not documented as a run recipe; Robustness metric not evaluated.</td></tr>
       <tr><td>Documentation</td><td class='score-cell'>4.00 / 5</td><td>No academic paper about the benchmark exists yet.</td></tr>
-      <tr class="avg-row"><td>Average</td><td class="score-cell">2.83 / 5</td><td></td></tr>
+      <tr class="avg-row"><td>Average</td><td class="score-cell">3.33 / 5</td><td></td></tr>
     </tbody>
   </table>
   </div>
-  <span class="endorsed no">Below Endorsement threshold (avg >= 4.5/5) by 1.67</span>
+  <span class="endorsed no">Below Endorsement threshold (avg >= 4.5/5) by 1.17</span>
 
   <h2>Rating Radar</h2>
-  <div class="radar-wrap"><svg viewBox="0 0 360 360" width="100%" height="auto" role="img" aria-label="Rating radar chart"><polygon points="180.0,154.1 202.4,167.0 202.4,193.0 180.0,205.9 157.6,193.0 157.6,167.0" fill="none" stroke="var(--radar-grid)" stroke-width="1"/><polygon points="180.0,128.2 224.9,154.1 224.9,205.9 180.0,231.8 135.1,205.9 135.1,154.1" fill="none" stroke="var(--radar-grid)" stroke-width="1"/><polygon points="180.0,102.2 247.3,141.1 247.3,218.9 180.0,257.8 112.7,218.9 112.7,141.1" fill="none" stroke="var(--radar-grid)" stroke-width="1"/><polygon points="180.0,76.3 269.8,128.2 269.8,231.8 180.0,283.7 90.2,231.8 90.2,128.2" fill="none" stroke="var(--radar-grid)" stroke-width="1"/><polygon points="180.0,50.4 292.2,115.2 292.2,244.8 180.0,309.6 67.8,244.8 67.8,115.2" fill="none" stroke="var(--radar-grid)" stroke-width="1"/><line x1="180.0" y1="180.0" x2="180.0" y2="50.4" stroke="var(--radar-grid)" stroke-width="1"/><line x1="180.0" y1="180.0" x2="292.2" y2="115.2" stroke="var(--radar-grid)" stroke-width="1"/><line x1="180.0" y1="180.0" x2="292.2" y2="244.8" stroke="var(--radar-grid)" stroke-width="1"/><line x1="180.0" y1="180.0" x2="180.0" y2="309.6" stroke="var(--radar-grid)" stroke-width="1"/><line x1="180.0" y1="180.0" x2="67.8" y2="244.8" stroke="var(--radar-grid)" stroke-width="1"/><line x1="180.0" y1="180.0" x2="67.8" y2="115.2" stroke="var(--radar-grid)" stroke-width="1"/><polygon points="180.0,180.0 292.2,115.2 224.9,205.9 180.0,309.6 157.6,193.0 90.2,128.2" fill="var(--radar-fill)" fill-opacity="0.35" stroke="var(--radar-stroke)" stroke-width="2"/><circle cx="180.0" cy="180.0" r="3" fill="var(--radar-stroke)"/><circle cx="292.2" cy="115.2" r="3" fill="var(--radar-stroke)"/><circle cx="224.9" cy="205.9" r="3" fill="var(--radar-stroke)"/><circle cx="180.0" cy="309.6" r="3" fill="var(--radar-stroke)"/><circle cx="157.6" cy="193.0" r="3" fill="var(--radar-stroke)"/><circle cx="90.2" cy="128.2" r="3" fill="var(--radar-stroke)"/><text x="180.0" y="14.4" text-anchor="middle" dominant-baseline="middle" class="radar-label">Software (0.0)</text><text x="323.4" y="97.2" text-anchor="start" dominant-baseline="middle" class="radar-label">Specification (5.0)</text><text x="323.4" y="262.8" text-anchor="start" dominant-baseline="middle" class="radar-label">Dataset (2.0)</text><text x="180.0" y="345.6" text-anchor="middle" dominant-baseline="middle" class="radar-label">Metrics (5.0)</text><text x="36.6" y="262.8" text-anchor="end" dominant-baseline="middle" class="radar-label">Reference Solution (1.0)</text><text x="36.6" y="97.2" text-anchor="end" dominant-baseline="middle" class="radar-label">Documentation (4.0)</text></svg></div>
+  <div class="radar-wrap"><svg viewBox="0 0 360 360" width="100%" height="auto" role="img" aria-label="Rating radar chart"><polygon points="180.0,154.1 202.4,167.0 202.4,193.0 180.0,205.9 157.6,193.0 157.6,167.0" fill="none" stroke="var(--radar-grid)" stroke-width="1"/><polygon points="180.0,128.2 224.9,154.1 224.9,205.9 180.0,231.8 135.1,205.9 135.1,154.1" fill="none" stroke="var(--radar-grid)" stroke-width="1"/><polygon points="180.0,102.2 247.3,141.1 247.3,218.9 180.0,257.8 112.7,218.9 112.7,141.1" fill="none" stroke="var(--radar-grid)" stroke-width="1"/><polygon points="180.0,76.3 269.8,128.2 269.8,231.8 180.0,283.7 90.2,231.8 90.2,128.2" fill="none" stroke="var(--radar-grid)" stroke-width="1"/><polygon points="180.0,50.4 292.2,115.2 292.2,244.8 180.0,309.6 67.8,244.8 67.8,115.2" fill="none" stroke="var(--radar-grid)" stroke-width="1"/><line x1="180.0" y1="180.0" x2="180.0" y2="50.4" stroke="var(--radar-grid)" stroke-width="1"/><line x1="180.0" y1="180.0" x2="292.2" y2="115.2" stroke="var(--radar-grid)" stroke-width="1"/><line x1="180.0" y1="180.0" x2="292.2" y2="244.8" stroke="var(--radar-grid)" stroke-width="1"/><line x1="180.0" y1="180.0" x2="180.0" y2="309.6" stroke="var(--radar-grid)" stroke-width="1"/><line x1="180.0" y1="180.0" x2="67.8" y2="244.8" stroke="var(--radar-grid)" stroke-width="1"/><line x1="180.0" y1="180.0" x2="67.8" y2="115.2" stroke="var(--radar-grid)" stroke-width="1"/><polygon points="180.0,154.1 292.2,115.2 224.9,205.9 180.0,309.6 112.7,218.9 90.2,128.2" fill="var(--radar-fill)" fill-opacity="0.35" stroke="var(--radar-stroke)" stroke-width="2"/><circle cx="180.0" cy="154.1" r="3" fill="var(--radar-stroke)"/><circle cx="292.2" cy="115.2" r="3" fill="var(--radar-stroke)"/><circle cx="224.9" cy="205.9" r="3" fill="var(--radar-stroke)"/><circle cx="180.0" cy="309.6" r="3" fill="var(--radar-stroke)"/><circle cx="112.7" cy="218.9" r="3" fill="var(--radar-stroke)"/><circle cx="90.2" cy="128.2" r="3" fill="var(--radar-stroke)"/><text x="180.0" y="14.4" text-anchor="middle" dominant-baseline="middle" class="radar-label">Software (1.0)</text><text x="323.4" y="97.2" text-anchor="start" dominant-baseline="middle" class="radar-label">Specification (5.0)</text><text x="323.4" y="262.8" text-anchor="start" dominant-baseline="middle" class="radar-label">Dataset (2.0)</text><text x="180.0" y="345.6" text-anchor="middle" dominant-baseline="middle" class="radar-label">Metrics (5.0)</text><text x="36.6" y="262.8" text-anchor="end" dominant-baseline="middle" class="radar-label">Reference Solution (3.0)</text><text x="36.6" y="97.2" text-anchor="end" dominant-baseline="middle" class="radar-label">Documentation (4.0)</text></svg></div>
 
   <footer>
     Generated from an MLCommons corpus-entry YAML by benchmark-builder, styled after the

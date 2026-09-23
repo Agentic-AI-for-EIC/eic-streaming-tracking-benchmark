@@ -65,6 +65,10 @@
     fewer bit-operations) is an AI comparison entry. This is a working draft: canonical
     dataset splits are not yet frozen -- see README.md for the full, evidence-cited gap list.
 
+  constraints_link:
+    name: "Streaming data path: bandwidth and latency constraints (diagram)"
+    url: "hardware_architecture.html"
+
   licensing: "Not yet specified -- [GAP], no LICENSE file exists in the benchmark package yet."
 
   task_types:

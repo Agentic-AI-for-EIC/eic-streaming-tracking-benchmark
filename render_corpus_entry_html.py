@@ -189,6 +189,7 @@ PAGE_TEMPLATE = """<!doctype html>
     margin: 0 0.4rem 0.4rem 0;
   }}
   p.summary {{ font-size: 0.98rem; max-width: 66ch; text-wrap: pretty; }}
+  p.constraints-link {{ font-size: 0.98rem; max-width: 66ch; }}
   table {{ width: 100%; border-collapse: collapse; font-size: 0.92rem; margin-top: 0.25rem; }}
   th, td {{ text-align: left; padding: 0.6rem 0.7rem; border-bottom: 1px solid var(--border); vertical-align: top; }}
   th {{ color: var(--muted); font-weight: 600; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em;
@@ -227,6 +228,7 @@ PAGE_TEMPLATE = """<!doctype html>
 
   <h2>Summary</h2>
   <p class="summary">{summary}</p>
+  {constraints_link}
 
   <h2>Metadata</h2>
   <dl class="meta-grid">
@@ -304,11 +306,21 @@ def build_page(entry):
 
     bibtex = "\n\n".join((entry.get("cite") or []))
 
+    # Optional: `constraints_link: {name, url}` points at a diagram/page for the system constraints.
+    cl = entry.get("constraints_link") or {}
+    constraints_link = ""
+    if cl.get("url"):
+        constraints_link = (
+            f'<p class="constraints-link"><strong>System constraints:</strong> '
+            f'<a href="{_esc(cl["url"])}">{_esc(cl.get("name") or cl["url"])}</a></p>'
+        )
+
     return PAGE_TEMPLATE.format(
         title=_esc(entry.get("name") or "(unnamed benchmark)"),
         name=_esc(entry.get("name") or "(unnamed benchmark)"),
         focus=_esc((entry.get("focus") or "").strip()),
         draft_banner=draft_banner,
+        constraints_link=constraints_link,
         summary=_esc((entry.get("summary") or "").strip()),
         date=_esc(entry.get("date") or "—"),
         version=_esc(entry.get("version") or "—"),
