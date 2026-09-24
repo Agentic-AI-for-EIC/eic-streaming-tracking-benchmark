@@ -45,7 +45,7 @@ problem_specification:
   - id: constraints_provided
     description: "System constraints (power, latency, throughput, etc.) are provided."
     met: true
-    evidence: "README.md Section 1 constraints table: 0.6ms latency, FPGA deployment path, fixed-point arithmetic, on-chip weight storage, LUT ceiling, and a computed ~1.4 Tb/s (~171 GB/s) approximate input data rate derived from window size and feature count."
+    evidence: "README.md Section 1 constraints table: 0.6ms latency and a computed ~1.4 Tb/s (~171 GB/s) approximate input data rate derived from window size and feature count."
   - id: task_clear
     description: "The benchmark task is clear."
     met: true

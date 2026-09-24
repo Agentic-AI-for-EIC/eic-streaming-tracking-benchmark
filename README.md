@@ -62,10 +62,6 @@ optimized):
 | Constraint | Value | Source |
 |---|---|---|
 | End-to-end latency | **≤ 0.6 ms** | ePIC streaming Time-Frame duration (proposal target; the team's own working number — pinned here per project decision, see Sources) |
-| Deployment target | Must have a path to FPGA firmware (fixed-point/quantized, on-chip weights) | Streaming readout has no hardware trigger — filtering has to happen inline in the DAQ chain, not offline |
-| Arithmetic | Fixed-point only in the deployed path (no practical float32 on fabric) | HEPTv2/hls4ml slide deck, "Compression" section |
-| On-chip weight storage | Full-precision (1.59M-param, fp32) baseline does **not** fit; compressed variant (337k params, 6-bit, 48% sparse, 127 KB) does | Same source |
-| Resource ceiling | Reference HLS kernel already reaches ~97% LUT at sequence length 600 on a Xilinx Alveo U250 | Same source |
 | Input data rate (approx.) | **~342 KB/window, ~1.4 Tb/s (~171 GB/s) sustained** | Computed, not sourced — see derivation below |
 
 `[GAP]` The 0.6 ms figure is carried over from the proposal text, which itself marks it
@@ -92,7 +88,7 @@ rates." Two things to flag about this estimate:
   `data/SCHEMA.md`) that the filtered schema is itself extracted from — actual on-detector
   raw bandwidth is substantially higher.
 - **4 bytes/feature (float32) is an assumption**, not a spec'd wire format — the
-  deployed/fixed-point path (see Arithmetic constraint above) would use a narrower
+  deployed path would likely use a narrower
   representation, which would lower this figure; nothing in the source material pins an
   actual on-wire byte width yet, so treat 342 KB/window as an order-of-magnitude anchor
   for reasoning about the problem, not a hardware requirement to design against directly.
@@ -322,8 +318,7 @@ explicitly as an imperfect fit, not a confident classification — a case could 
 be made to MLCommons that the taxonomy is missing a set-prediction/clustering motif that
 HEP tracking benchmarks generally need.
 
-**Computing Motifs:** Latency Bound (0.6 ms budget), Memory Bound (on-chip weight
-storage; 6.2 MB fp32 weights do not fit, 127 KB compressed does), Throughput Bound
+**Computing Motifs:** Latency Bound (0.6 ms budget), Memory Bound (model size vs. available memory; hardware is not fixed), Throughput Bound
 (continuous streaming readout, no trigger to reduce rate upstream).
 
 ---
