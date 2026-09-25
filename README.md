@@ -323,6 +323,7 @@ locally at `../indico-eIC-agentic-AI-materials/`:
 | Data access, DIDs, file format, filtered schema | `02_05aug2026/.../Genesis_260805.pdf` |
 | Phase-I success metrics (independent restatement) | `02_05aug2026/.../ePIC-Genesis-Sim-Analysis-WorkFlow-082026-MingLiu.pdf` |
 | SVT sensor-noise context | `02_05aug2026/.../SVT noise in tracking_EICUG2026-2.pdf` |
+| EICrecon timing (607 ms/event; 278 ms with AI hit filter), preliminary, 26.07.0 10x275 sample | `2026-07-15 Streaming Readout AI Background Suppression.pdf` (slide 31), in `indico-eIC-agentic-AI-materials/` |
 | Compute environment (Purdue/Argonne/NERSC/NVIDIA) | `03_12aug2026/.../PurdueComputeResources.pdf`, `03_12aug2026/.../Fast-ML-for-EIC-NVIDIA-DIscussions-0806-2026.pdf` |
 | Project objectives/tasks/milestones (independent restatement) | `01_Kickoff_29jul2026/Kick-off_meeting/20260729_Wednesday/1630.../kick-off.pdf` |
 
