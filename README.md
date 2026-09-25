@@ -198,7 +198,7 @@ be reported as diagnostics, and are implemented in `metrics/score.py`.
 
 ## 4. Reference Solution
 
-**Summary.** The reference is the standard rule-based (non-AI) central-tracking
+**Summary.** The baseline is a Kalman Filter tracking algorithm: the standard rule-based (non-AI) central-tracking
 reconstruction in **EICrecon**, the ePIC reconstruction framework
 (`https://github.com/eic/EICrecon`, LGPL-3.0). It is the accuracy reference, not a
 deployable one: it does not meet the bandwidth/latency constraints in Section 1, and

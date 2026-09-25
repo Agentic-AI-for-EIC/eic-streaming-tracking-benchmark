@@ -52,8 +52,8 @@
     approximate ~1.4 Tb/s (~171 GB/s) sustained
     input data rate (computed from ~5,700 hits/window x 15 features/hit over the 2 us
     window -- see README.md Section 1 for the full derivation and its assumptions). Its two metrics are the background hit rejection factor (>~2x or more)
-    and the signal track retention rate (~100%). The reference solution is the rule-based (non-AI) central tracking in
-    EICrecon (public, LGPL-3.0); it does not meet the latency/bandwidth constraints and
+    and the signal track retention rate (~100%). The baseline solution is a Kalman Filter tracking algorithm: the rule-based
+    (non-AI) central tracking in EICrecon (ACTS seeding + Combinatorial Kalman Filter, public, LGPL-3.0); it does not meet the latency/bandwidth constraints and
     serves as the accuracy baseline. It is UNCONFIRMED: not yet built or run for this
     benchmark, so no reference results exist. HEPTv2 (an LSH point transformer adapted from
     CMS L1-trigger HEPT; slide-deck results per-hit AUROC 0.992, Double Majority 0.597, 211x
@@ -141,7 +141,7 @@
       reason: "None."
     reference_solution:
       rating: 3.0
-      reason: "Reference (EICrecon rule-based tracking) is public and open-licensed but UNCONFIRMED: not run, no benchmark results, not documented as a run recipe; Robustness metric not evaluated."
+      reason: "Baseline (EICrecon Kalman Filter tracking) is public and open-licensed but UNCONFIRMED: not run, no benchmark results, not documented as a run recipe; Robustness metric not evaluated."
     documentation:
       rating: 4.0
       reason: "No academic paper about the benchmark exists yet."
