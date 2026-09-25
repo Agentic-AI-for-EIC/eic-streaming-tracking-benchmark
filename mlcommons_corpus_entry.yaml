@@ -23,7 +23,7 @@
 
   focus: >
     Given an unordered ~2 microsecond window of ePIC central-tracker hits containing
-    exactly one buried DIS physics event on top of continuous beam/synchrotron
+    on average one buried DIS physics event on top of continuous beam/synchrotron
     background, reconstruct the tracks belonging to that event (the task) and tag
     which reconstructed objects are signal rather than overlay (the task's other
     half), scored against the metrics defined in Section 3 (Double Majority,

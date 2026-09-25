@@ -1,6 +1,6 @@
 # EIC Streaming Tracking Benchmark
 
-> Given an unordered, ~2 µs window of ePIC central-tracker hits containing exactly one
+> Given an unordered, ~2 µs window of ePIC central-tracker hits containing, on average, one
 > buried DIS physics event on top of continuous beam/synchrotron background, reconstruct
 > the tracks belonging to that event and tag which reconstructed objects are signal rather
 > than overlay — all within a resource budget that must eventually fit inside the readout
