@@ -119,7 +119,7 @@
   <div class="breadcrumb"><a href="https://mlcommons-science.github.io/benchmark/md/benchmarks/">&larr; All benchmarks</a></div>
   <p class="eyebrow">Nuclear Physics &middot; Benchmark</p>
   <h1>EIC Streaming Tracking Benchmark</h1>
-  <p class="focus">Given an unordered ~2 microsecond window of ePIC central-tracker hits containing on average one buried DIS physics event on top of continuous beam/synchrotron background, reconstruct the tracks belonging to that event (the task) and tag which reconstructed objects are signal rather than overlay (the task&#x27;s other half), scored against the metrics defined in Section 3 (Double Majority, technical efficiency, fake rate, per-hit/per-track AUROC, compression ratio, signal retention) while satisfying fixed system constraints: &lt;=0.6 ms end-to-end latency, a path to fixed-point FPGA firmware, and an approximate ~1.4 Tb/s (~171 GB/s) sustained input data rate computed from the ~5,700-hit/window, 15-feature-per-hit input over the 2 microsecond window.</p>
+  <p class="focus">Given an unordered ~2 microsecond window of ePIC central-tracker hits containing on average one buried DIS physics event on top of continuous beam/synchrotron background, reconstruct the tracks belonging to that event (the task) and tag which reconstructed objects are signal rather than overlay (the task&#x27;s other half), scored against the two metrics defined in Section 3 (background hit rejection factor, &gt;~2x or more; signal track retention rate, ~100%) while satisfying fixed system constraints: &lt;=0.6 ms end-to-end latency and an approximate ~1.4 Tb/s (~171 GB/s) sustained input data rate computed from the ~5,700-hit/window, 15-feature-per-hit input over the 2 microsecond window.</p>
   <div class='draft-banner'>Working draft &mdash; not yet verified as a reproducible, runnable benchmark (see Ratings below for specifics).</div>
 
   <h2>Summary</h2>
@@ -129,14 +129,11 @@ occupancy roughly three orders of magnitude above the true deep-inelastic-scatte
 inline. This benchmark asks a model to jointly (a) group an unordered set of tracker
 hits into tracks belonging to the one true signal event in the window, and (b) tag
 signal vs. background hits/tracks using relative-timing coincidence (not geometry
-alone), while satisfying a hard deployability budget: &lt;=0.6 ms end-to-end latency, a
-path to fixed-point FPGA firmware, and an approximate ~1.4 Tb/s (~171 GB/s) sustained
+alone), while satisfying a hard deployability budget: &lt;=0.6 ms end-to-end latency and an
+approximate ~1.4 Tb/s (~171 GB/s) sustained
 input data rate (computed from ~5,700 hits/window x 15 features/hit over the 2 us
-window -- see README.md Section 1 for the full derivation and its assumptions). It is
-a multi-dimensional (Pareto) benchmark --
-physics-quality metrics (Double Majority, technical efficiency, fake rate, per-hit/
-per-track AUROC) are compared at a fixed resource/latency budget, not traded off
-against it freely. The reference solution is the rule-based (non-AI) central tracking in
+window -- see README.md Section 1 for the full derivation and its assumptions). Its two metrics are the background hit rejection factor (&gt;~2x or more)
+and the signal track retention rate (~100%). The reference solution is the rule-based (non-AI) central tracking in
 EICrecon (public, LGPL-3.0); it does not meet the latency/bandwidth constraints and
 serves as the accuracy baseline. It is UNCONFIRMED: not yet built or run for this
 benchmark, so no reference results exist. HEPTv2 (an LSH point transformer adapted from
@@ -151,21 +148,21 @@ dataset splits are not yet frozen -- see README.md for the full, evidence-cited 
     <dt>Version</dt><dd>v1.0</dd>
     <dt>Domain</dt><dd>Nuclear Physics</dd>
     <dt>Task Types</dt><dd>Classification</dd>
-    <dt>Metrics</dt><dd>Per-hit signal AUROC, Per-track signal AUROC, Double Majority, Technical efficiency, Fake rate, Compression ratio (bit-operations), Signal retention, Robustness</dd>
+    <dt>Metrics</dt><dd>Background hit rejection factor, Signal track retention rate</dd>
     <dt>Models</dt><dd>HEPTv2 (LSH point transformer)</dd>
     <dt>AI/ML Motif</dt><dd>Classification</dd>
     <dt>Learning Paradigm</dt><dd>Supervised Learning</dd>
-    <dt>AI Capability Measured</dt><dd>Real-time signal/background discrimination under streaming readout constraints, Deployability under a fixed latency/resource budget (compression, quantization, FPGA feasibility)</dd>
+    <dt>AI Capability Measured</dt><dd>Real-time signal/background discrimination under streaming readout constraints, Deployability under a fixed latency/resource budget (compression, quantization)</dd>
     <dt>License</dt><dd>Not yet specified -- [GAP], no LICENSE file exists in the benchmark package yet.</dd>
   </dl>
 
   <h2>Resources</h2>
   <ul class="resource-list">
-    <li><strong>Benchmark:</strong> <a href="https://github.com/Agentic-AI-for-EIC/eic-streaming-tracking-benchmark">https://github.com/Agentic-AI-for-EIC/eic-streaming-tracking-benchmark</a></li><li><strong>Dataset:</strong> <a href="https://eic.github.io/tutorial-file-access/01-introduction.html">ePIC full-detector MC (DIS NC 10x100 GeV, campaign 26.07.1, epic_craterlake), via Rucio</a></li><li><strong>Results:</strong> <a href="https://github.com/Agentic-AI-for-EIC/eic-streaming-tracking-benchmark">EIC Streaming Tracking Benchmark repo (README.md Sections 3-4, SCORE_REPORT.md)</a></li>
+    <li><strong>Benchmark:</strong> <a href="https://github.com/Agentic-AI-for-EIC/eic-streaming-tracking-benchmark">https://github.com/Agentic-AI-for-EIC/eic-streaming-tracking-benchmark</a></li><li><strong>Dataset:</strong> <a href="https://eic.github.io/tutorial-file-access/01-introduction.html">ePIC full-detector MC (DIS NC 10x100 GeV, April campaign 26.04.1, epic_craterlake), via Rucio</a></li><li><strong>Results:</strong> <a href="https://github.com/Agentic-AI-for-EIC/eic-streaming-tracking-benchmark">EIC Streaming Tracking Benchmark repo (README.md Sections 3-4, SCORE_REPORT.md)</a></li>
   </ul>
 
   <h2>Keywords</h2>
-  <div><span class="tag">particle tracking</span><span class="tag">streaming readout</span><span class="tag">point transformer</span><span class="tag">quantization</span><span class="tag">pruning</span><span class="tag">FPGA deployment</span><span class="tag">electron-ion collider</span><span class="tag">ePIC</span></div>
+  <div><span class="tag">particle tracking</span><span class="tag">streaming readout</span><span class="tag">point transformer</span><span class="tag">quantization</span><span class="tag">pruning</span><span class="tag">electron-ion collider</span><span class="tag">ePIC</span></div>
 
   <h2>Citation</h2>
   <pre class='citation'>@misc{eic_streaming_tracking_benchmark_2026,

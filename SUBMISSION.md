@@ -14,9 +14,8 @@ benchmark's two coupled sub-tasks (RECONSTRUCT + TAG — see `README.md` Section
       classifiers (matching HEPTv2's reporting style — see
       `reference_solution/README.md`), plus a purity-vs-completeness scatter or histogram
       for the track-reconstruction sub-task.
-- [ ] **Metric table**: double majority, technical efficiency, fake rate, per-hit AUROC,
-      per-track AUROC, bit-operations/compression ratio, and measured end-to-end latency
-      against the 0.6 ms constraint — computed exactly as defined in `README.md` Section 3
+- [ ] **Metric table**: background hit rejection factor, signal track retention rate,
+      and measured end-to-end latency against the 0.6 ms constraint — computed exactly as defined in `README.md` Section 3
       / implemented in `metrics/score.py`.
 
 ## Strongly recommended
@@ -50,12 +49,8 @@ benchmark's two coupled sub-tasks (RECONSTRUCT + TAG — see `README.md` Section
 
 | Metric | Test split |
 |---|---|
-| Per-hit signal AUROC | |
-| Per-track signal AUROC | |
-| Double Majority | |
-| Technical efficiency | |
-| Fake rate | |
-| Bit-operations vs. fp32 baseline | |
+| Background hit rejection factor | |
+| Signal track retention rate | |
 | Measured end-to-end latency | |
 
 ## Visual comparisons

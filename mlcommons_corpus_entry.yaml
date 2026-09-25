@@ -26,10 +26,9 @@
     on average one buried DIS physics event on top of continuous beam/synchrotron
     background, reconstruct the tracks belonging to that event (the task) and tag
     which reconstructed objects are signal rather than overlay (the task's other
-    half), scored against the metrics defined in Section 3 (Double Majority,
-    technical efficiency, fake rate, per-hit/per-track AUROC, compression ratio,
-    signal retention) while satisfying fixed system constraints: <=0.6 ms end-to-end
-    latency, a path to fixed-point FPGA firmware, and an approximate ~1.4 Tb/s
+    half), scored against the two metrics defined in Section 3 (background
+    hit rejection factor, >~2x or more; signal track retention rate, ~100%) while satisfying fixed system constraints: <=0.6 ms end-to-end
+    latency and an approximate ~1.4 Tb/s
     (~171 GB/s) sustained input data rate computed from the ~5,700-hit/window,
     15-feature-per-hit input over the 2 microsecond window.
 
@@ -39,7 +38,6 @@
     - "point transformer"
     - "quantization"
     - "pruning"
-    - "FPGA deployment"
     - "electron-ion collider"
     - "ePIC"
 
@@ -50,14 +48,11 @@
     inline. This benchmark asks a model to jointly (a) group an unordered set of tracker
     hits into tracks belonging to the one true signal event in the window, and (b) tag
     signal vs. background hits/tracks using relative-timing coincidence (not geometry
-    alone), while satisfying a hard deployability budget: <=0.6 ms end-to-end latency, a
-    path to fixed-point FPGA firmware, and an approximate ~1.4 Tb/s (~171 GB/s) sustained
+    alone), while satisfying a hard deployability budget: <=0.6 ms end-to-end latency and an
+    approximate ~1.4 Tb/s (~171 GB/s) sustained
     input data rate (computed from ~5,700 hits/window x 15 features/hit over the 2 us
-    window -- see README.md Section 1 for the full derivation and its assumptions). It is
-    a multi-dimensional (Pareto) benchmark --
-    physics-quality metrics (Double Majority, technical efficiency, fake rate, per-hit/
-    per-track AUROC) are compared at a fixed resource/latency budget, not traded off
-    against it freely. The reference solution is the rule-based (non-AI) central tracking in
+    window -- see README.md Section 1 for the full derivation and its assumptions). Its two metrics are the background hit rejection factor (>~2x or more)
+    and the signal track retention rate (~100%). The reference solution is the rule-based (non-AI) central tracking in
     EICrecon (public, LGPL-3.0); it does not meet the latency/bandwidth constraints and
     serves as the accuracy baseline. It is UNCONFIRMED: not yet built or run for this
     benchmark, so no reference results exist. HEPTv2 (an LSH point transformer adapted from
@@ -76,17 +71,11 @@
 
   ai_capability_measured:
     - "Real-time signal/background discrimination under streaming readout constraints"
-    - "Deployability under a fixed latency/resource budget (compression, quantization, FPGA feasibility)"
+    - "Deployability under a fixed latency/resource budget (compression, quantization)"
 
   metrics:
-    - "Per-hit signal AUROC"
-    - "Per-track signal AUROC"
-    - "Double Majority"
-    - "Technical efficiency"
-    - "Fake rate"
-    - "Compression ratio (bit-operations)"
-    - "Signal retention"
-    - "Robustness"
+    - "Background hit rejection factor"
+    - "Signal track retention rate"
 
   models:
     - "HEPTv2 (LSH point transformer)"
@@ -125,7 +114,7 @@
 
   datasets:
     links:
-      - name: "ePIC full-detector MC (DIS NC 10x100 GeV, campaign 26.07.1, epic_craterlake), via Rucio"
+      - name: "ePIC full-detector MC (DIS NC 10x100 GeV, April campaign 26.04.1, epic_craterlake), via Rucio"
         url: "https://eic.github.io/tutorial-file-access/01-introduction.html"
 
   results:

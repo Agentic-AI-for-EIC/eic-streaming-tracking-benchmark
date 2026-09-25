@@ -101,9 +101,7 @@ rates." Two things to flag about this estimate:
 scattering (DIS, neutral-current, 10x100 GeV beam energies, minQ2=100) signal events,
 overlaid with realistic synchrotron-radiation and beam-gas background
 (`Bkg_Exact1S_2us`, `GoldCt`, 10 µm), reconstructed with `eicrecon`. **Canonical
-campaign/version: `26.07.1`, `epic_craterlake` detector geometry** (pinned per project
-decision — an earlier `26.04.1`/April campaign also exists and remains a valid fallback if
-`26.07.1` access issues recur).
+campaign/version: April 2026 production campaign, `26.04.1`, `epic_craterlake` detector geometry.**
 
 Signal hit occupancy is roughly three orders of magnitude below background: synchrotron
 background exceeds GHz rates in the inner pixel layers while true DIS signal hits are
@@ -113,13 +111,13 @@ background exceeds GHz rates in the inner pixel layers while true DIS signal hit
 retrieved via XRootD. Example dataset identifiers (DIDs):
 
 ```
-epic:/RECO/26.07.1/epic_craterlake/DIS/NC/10x100/minQ2=100/*
-epic:/RECO/26.07.1/epic_craterlake/Bkg_Exact1S_2us/GoldCt/10um/DIS/NC/10x100/minQ2=100/*
+epic:/RECO/26.04.1/epic_craterlake/DIS/NC/10x100/minQ2=100/*
+epic:/RECO/26.04.1/epic_craterlake/Bkg_Exact1S_2us/GoldCt/10um/DIS/NC/10x100/minQ2=100/*
 ```
 
 Example direct XRootD pull:
 ```
-xrdcp root://hpceph-xrootd.twgrid.org:1094//cephfs/epic//RECO/26.07.0/epic_craterlake/DIS/NC/10x100/minQ2=100/pythia8NCDIS_10x100_minQ2=100_beamEffects_xAngle=-0.025_hiDiv_1.0746.eicrecon.edm4eic.root ./
+xrdcp root://hpceph-xrootd.twgrid.org:1094//cephfs/epic//RECO/26.04.1/epic_craterlake/DIS/NC/10x100/minQ2=100/pythia8NCDIS_10x100_minQ2=100_beamEffects_xAngle=-0.025_hiDiv_1.0746.eicrecon.edm4eic.root ./
 ```
 `eic-shell` (used version: `26.05`) provides the Rucio/XRootD tooling; see
 `https://eic.github.io/tutorial-file-access/01-introduction.html`.
@@ -143,7 +141,7 @@ own evaluation, not a canonical benchmark release:
 The reference solution's own author flags this directly: *"The mixed sample has 495
 events — ~2,470 target tracks in the whole training split... the limit is sample size."*
 Formalizing a larger, canonical, non-overlapping train/val/test split (ideally stratified
-by background rate — see "Robustness" in the metrics section) is the single highest-value
+by background rate) is the single highest-value
 open item for this benchmark, by the reference solution's own assessment.
 
 **Truth labels — a required preprocessing subtlety.** Truth association follows
@@ -178,34 +176,23 @@ per the ontology's stable-target definition).
 
 ## 3. Performance Metric(s)
 
-This is a **multi-dimensional (Pareto) benchmark**: physics-quality metrics are compared
-*at a fixed resource/latency budget* (Section 1's system constraints), not traded off
-against them freely.
+The benchmark cares about two things, both measured on the held-out test split:
 
-| Metric | Formula / definition | What it captures | Computed on |
-|---|---|---|---|
-| **Per-hit signal AUROC** | ROC-AUC of the per-hit signal/background classifier score vs. truth label (see Truth labels above) | How well timing-based tagging separates the ~0.1–1% signal hits from background at the finest grain | Test split, pooled hits |
-| **Per-track signal AUROC** | ROC-AUC of the mean per-hit score over each reconstructed track vs. track-level signal/background truth | Same, at track granularity | Test split, pooled tracks |
-| **Double Majority (DM)** | # predicted tracks with **both** purity > 0.5 **and** completeness > 0.5, ÷ # target tracks. Purity = (hits in predicted track from its majority-contributing truth particle) / (hits in predicted track). Completeness = (hits of that truth particle captured by the track) / (all hits of that truth particle). | The standard HEP tracking figure of merit — a track must be both mostly-correct and mostly-complete to count | Test split |
-| **Technical efficiency** | # distinct target particles found by ≥ 1 track with purity ≥ 0.5, deduplicated (a particle found twice counts once), ÷ # targets | Looser than DM — efficiency ignores completeness, so it sits slightly above DM in every reported table | Test split |
-| **Fake rate** | # predicted tracks where no single truth particle owns a majority of its hits, ÷ # predicted tracks (**not** ÷ targets — does not complement DM/efficiency) | False track rate — directly reduced by the post-processing described in Section 4 | Test split |
-| **Background rejection / compression ratio** | Bit-operations (MACs × weight bits × activation bits) at fixed accuracy, relative to an fp32 baseline; separately, raw background-hit-load reduction relative to the unfiltered stream | Whether the model actually shrinks the data/compute the downstream chain must handle — the proposal's Decision Gate requires ≥ 10× background-load reduction and ≥ 2× improvement over the best non-AI baseline at matched signal retention | Test split, measured against the fixed system constraints in Section 1 |
-| **Signal retention** | Fraction of truth-matched DIS signal hits/clusters retained after filtering | Decision-gate target: ≥ 95%, with ≤ 2% relative degradation in one downstream proxy (track efficiency, fake rate, or vertex performance) | Test split |
-| **Robustness** | Signal retention held within 3 percentage points across ≥ 3 background-rate/detector-variation conditions; confidence-score calibration under distribution shift | Whether results generalize beyond one fixed background rate | `[GAP]` — no benchmark split currently varies background rate; only single-rate results exist today (see Dataset splits) |
+| Metric | Definition | Target |
+|---|---|---|
+| **Background hit rejection factor** | (# background hits in the input stream) ÷ (# background hits that pass the filter). Background = hits not belonging to the true DIS signal event (see Truth labels above). | As large as possible; **≳ 2×** or more |
+| **Signal track retention rate** | Fraction of target signal tracks (≥ 3 layers, pT ≥ 0.1 GeV, from the true DIS event) that are retained after filtering. | As high as possible; **~100%** |
 
-**Edge cases / definitions.** Fake rate's denominator is predicted tracks, not targets,
-so it deliberately does not sum to 1 with DM/efficiency — this is called out explicitly
-because it's an easy mis-implementation. Purity/completeness ties at exactly 0.5 count as
-passing (`> 0.5` for purity per the reference solution's own convention, `≥ 0.5` for the
-efficiency dedup rule — these should be reconciled to one convention when the split is
-frozen; `[GAP]`, currently inherited verbatim from two slightly differently-worded slides).
+The two trade off against each other (rejecting more background risks losing signal), so
+results are reported as the pair — rejection factor *at* a given signal track retention.
 
-**Definitions level (rubric self-score): 3/3** — every metric above has an exact,
-reproducible formula, evidenced against the reference solution's own reported numbers.
-**Quality level (rubric self-score): 2/2** — the metric suite jointly captures physics
-correctness (DM/efficiency/fake-rate/AUROC) *and* deployability (compression ratio,
-latency budget as a hard constraint), matching the benchmark's own stated goal of "AI
-advantage" being about both at once, not physics performance alone.
+`[GAP]` The exact criterion for a signal track counting as "retained" (e.g. all vs. a
+minimum fraction of its hits surviving the filter) is not yet pinned; it should be fixed
+when the splits are frozen.
+
+Per-hit/per-track AUROC, Double Majority, technical efficiency, fake rate, compression
+ratio, and robustness from earlier drafts are no longer benchmark metrics; they may still
+be reported as diagnostics, and are implemented in `metrics/score.py`.
 
 ---
 
